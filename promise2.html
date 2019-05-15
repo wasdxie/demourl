@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+  (function (global,factory) {
+    var built = factory();
+    if(typeof module === 'object' && module){
+      module.exports = built;
+    };
+    if(typeof define === 'function' &&define.amd){
+      define(factory);
+    }
+    global.Promise2 = built;
+
+
+  }(typeof global != "undefined"?global:this,function () {
+    function Promise2(callBack) {
+      this.status = "pending";
+      this.result = "";
+      this.error = "";
+      this.callSuccess = [];
+      this.callFail = [];
+      if(typeof callBack != 'function'){
+        throw new Error("必须为函数");
+      }
+      try{
+        callBack(this.resolve.bind(this),this.reject.bind(this))
+      }catch (e) {
+        this.reject.bind(this)(e);
+      }
+    }
+
+
+    Promise2.prototype.resolve = function (value) {
+      this.result = value;
+      this.status = "resolved";
+      if(this.callSuccess.length > 0){
+        for(var i = 0;i<this.callSuccess.length;i++){
+          typeof  this.callSuccess[i] == 'function' && this.callSuccess[i](this.result)
+        }
+      }
+    }
+
+    Promise2.prototype.reject = function (error) {
+      this.status = "rejected";
+      this.error = error;
+      if(this.callFail.length > 0){
+        for(var i = 0;i<this.callFail.length;i++){
+          this.callFail[i](error)
+        }
+      }
+    }
+
+    Promise2.prototype.catch = function(errorhander){
+      return this.then(undefined,errorhander)
+    }
+
+    Promise2.prototype.then = function (resovleTmp,rejectTmp) {
+      let result = "";
+      if(this.status == "resolved" && resovleTmp){
+        result =  resovleTmp(this.result)
+      }else if(this.status == 'rejected' && rejectTmp){
+        rejectTmp(this.error)
+      }else {
+        resovleTmp  &&this.callSuccess.push(resovleTmp);
+        rejectTmp  && this.callFail.push(rejectTmp);
+        return this;
+      }
+
+      if(!(result instanceof  Promise2)){
+        return new Promise2(function (re,rj) {
+          re(result);
+        })
+      }else {
+        console.log(this);
+        console.log(this == result);
+        if(result == this){
+          return new Promise2(function (re,rj) {
+            result.then(re,rj)
+          })
+        }else {
+          return result;
+        }
+      }
+    }
+
+    Promise2.Resolve = function (value) {
+      return  new this(function (resolve) {
+        resolve(value);
+      })
+    }
+
+    Promise2.Rject = function(error){
+      return new this(function (undefined,reject) {
+        reject(error);
+      })
+    };
+
+    Promise2.all = function (callBackS) {
+      if(!Array.isArray(callBackS)){
+        throw new TypeError("the params is a array")
+      }
+      var promise2 = new Promise2(function (resolve,reject) {
+        let results = {};
+        let resultArray = [];
+        let slot = [];
+        let length = callBackS.length;
+        callBackS.forEach((values,i)=>{
+          if(values instanceof Promise2){
+            throw new TypeError("the params of array must be all Promise2 instance")
+          }
+          values.then(res=>{
+            if(slot.length == length -1){//
+              slot.push(1);
+              results[i] = res;
+              for(var j= 0;j<length;j++){
+                resultArray[j] = results[j];
+              }
+              resolve(resultArray);
+            }else {
+              slot.push(1);
+              results[i] = res;
+            }
+          },()=>{
+            reject()
+          })
+        })
+      });
+      return promise2;
+    }
+
+
+    Promise2.race = function (callBackS) {
+      if(!Array.isArray(callBackS)){
+        throw new TypeError("the params is a array")
+      }
+
+
+      var promise3 = new Promise2(function (resolve,reject) {
+        let ready = false;
+        callBackS.forEach((values,i)=>{
+          if(values instanceof Promise2){
+            throw new TypeError("the params of array must be all Promise2 instance")
+          }
+          values.then(res=>{
+            if(!ready){
+              resolve(res);
+              ready = true;
+            }
+          },()=>{
+            reject()
+          })
+        })
+      });
+      return promise3;
+    }
+    return Promise2;
+  }));
+  
+
+
+  Promise2.Resolve(111111).then((res)=>{console.log(res);return 8}).then(res2=>{console.log(res2,11100)})
+
+  Promise2.Rject(2222).then((res)=>{},error=>{console.log(error)})
+
+
+   new  Promise2(function (re,rj) {
+
+     rj("fff")
+   }).then(function retmp(data) {
+
+     return data;
+   },undefined).catch((e)=>{
+     console.log(e)
+   })
+
+
+  var xx = 100;
+  var pro1 = new Promise2(function (res,rej) {
+    setTimeout(()=>{
+      res(xx)
+    },1000);
+  });
+
+   var pro2 = new Promise2(function (res,rej) {
+     setTimeout(()=>{
+       res(19999);
+     },1000)
+   });
+
+  Promise2.all([pro1,pro2]).then((res)=>{
+    console.log(res);
+  },error=>{
+    console.log(error)
+  })
+
+   Promise2.race([pro1,pro2]).then((res)=>{
+     console.log(res);
+   },error=>{
+     console.log(error)
+   })
+
+  new Promise2(function (res,rej) {
+
+  })
+</script>
+</body>
+</html>
