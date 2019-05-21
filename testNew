@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+   function Person(name,sex) {
+     this.name = name;
+     this.sex = sex;
+   }
+
+   Person.prototype.salary = "40k";
+   var person = new Person("dejun","nan");
+
+  /**
+   * 访问到Person 构造函数里面的属性
+   * 访问到Person 构造函数里面的属性
+   * */
+   function TestNew() {
+    console.log(arguments)
+     var constr = Array.prototype.shift.call(arguments);
+    var obj = Object.create(constr.prototype);
+    var result =  constr.apply(obj,arguments);
+    console.log(constr);
+     console.log(arguments);
+     console.log(obj);
+     return typeof result == 'object' ? result || obj:obj;
+   }
+
+   var person1 = TestNew(Person,"dejun","nan");
+</script>
+</body>
+</html>
