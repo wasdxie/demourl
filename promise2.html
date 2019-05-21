@@ -143,7 +143,7 @@
       var promise3 = new Promise2(function (resolve,reject) {
         let ready = false;
         callBackS.forEach((values,i)=>{
-          if(values instanceof Promise2){
+          if(!(values instanceof Promise2)){
             throw new TypeError("the params of array must be all Promise2 instance")
           }
           values.then(res=>{
