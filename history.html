@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>测试路由原理</title>
+</head>
+<body>
+    <div id="app"></div>
+    <div id="go">前进</div>
+    <div id="back">后退</div>
+    <div id="noallow">添加不准后退事件(这里可以弹个框,决定是否让用户回去)</div>
+    <div id="allow">可以回去</div>
+</body>
+<script>
+  var noEvent = {};
+  var currentTime = "";
+   function render(pathname) {
+        document.getElementById("app").innerText = "现在是:"+pathname+"页面";
+   }
+
+   document.getElementById("go").addEventListener("click",function () {
+     let now = new Date().getTime();
+     let path = "/path/"+now
+      history.pushState({time:now},"",path); //页面url 和 state 关联不管是前进还是后退
+      render(path)
+     currentTime = path;
+   });
+
+   document.getElementById("noallow").addEventListener("click",function () {
+      let pathname = currentTime;
+      noEvent[pathname] = function () {
+          console.log("不准回去")
+          return false;
+      }
+   });
+
+   document.getElementById("allow").addEventListener("click",function () {
+     let pathname = currentTime;
+     noEvent[pathname] = null;
+   })
+
+  window.addEventListener("popstate",function (e) {// 这个事件肯定会触发,只要用户点击， 真正让用户感觉没有回退的是回退了，但页面没有刷新，同时在添加路由
+    console.log(e); //popstate 是在页面已经前进或者后退以后执行，这个时候肯定不刷新界面，由用户来决定是否重绘页面内容
+    let event = noEvent[currentTime];
+    if(event){
+       event();
+       history.pushState({time:e.state.time},"",currentTime);
+
+    }else {
+      let pathname = location.pathname;
+      render(pathname);
+      currentTime = pathname;
+    }
+
+  })
+
+
+   document.getElementById("back").addEventListener("click",function () {
+        history.go(-1);
+   });
+
+
+
+</script>
+</html>
