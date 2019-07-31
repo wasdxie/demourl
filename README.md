@@ -6,3 +6,10 @@ ant-mobile 官方组件demo：https://mobile.ant.design/kitchen-sink/?lang=zh-CN
 
 mui        官方组件demo:http://dcloud.io/hellomui/
 
+
+
+{
+  history.html:'用浏览器原生history pushstate，popstate 来实现单页面应用'，
+  promise2.html：'重新实现了下promise 协议'
+}
+
