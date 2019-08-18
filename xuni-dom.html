@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .item-header{
+            font-size: 30px;
+            color:green
+        }
+    </style>
+</head>
+
+<body>
+    <!-- <div id="test"> 
+        <p>节点1</p>
+    </div> -->
+<div id="app">
+ 
+</div>
+<script src="./vdom.js"></script>
+<script>
+    let div = createElement('div',{id:'test'},[
+    createElement('p',{key:'a',style:{color:'blue'}},[createElement('div',{style:{width:'40px',height:'50px',background:'red'}},'节点1')]),
+    createElement('p',{key:'b','@click':()=>{alert('xx')}},'节点2'),
+    createElement('p',{key:'c','class':'item-header'},'节点3'),
+    createElement('p',{key:'d'},'节点4')
+    ]);
+
+    console.log(JSON.stringify(div,null,4))
+
+    let node1 = createElement('div',{id:'test'},[
+    createElement('p',{key:'d'},'节点4'),
+    createElement('p',{key:'b'},'节点2'),
+    createElement('p',{key:'a',style:{color:'blue'}},[createElement('span',{style:{width:'40px',height:'50px',background:'red'}},'节点1')]),
+    createElement('p',{key:'f','class':'item-header'},'节点5'),
+    createElement('p',{key:'f','class':'item-header'},'节点6'),
+    ]);
+
+    setTimeout(()=>{
+        render(node1,document.getElementById('app'))
+    },2000);
+    render(div,document.getElementById('app'))
+//    function createElement(){
+//         return {
+//             tag:'div',
+//             data:{id:'app'},
+//             children:[{
+//                 tag:'p',
+//                 data:{
+//                     class:'item'
+//                 },
+//                 children:['节点1']
+//             }]
+//         }
+//     }
+    // let div = document.createElement('div');
+    // let ret = '';
+    // for(let key in div){
+    //    // ret += key + " " ;
+    //     ret = ret + key + " " ;
+    // }
+    // console.log(ret);
+</script>
+</body>
+</html>
